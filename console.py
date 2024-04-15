@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -114,17 +114,62 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+        """ Create an object of any class
+
+        raise Exceptions:
+        NameError: when no class with given name exists
+        SyntaxError: when no argument are received
+        """
+        try:
+            if not line:
+                raise SyntaxError()
+
+            arg_list = line.split(" ")
+
+            if not arg_list:
+                raise SyntaxError()
+            else:
+                cls_name = arg_list[0]
+
+            key_args = {}
+
+            for args in arg_list[1:]:
+                k, v = args.split("=")
+                if (self.check_type() == "int"):
+                    key_args[k] = int(v)
+                elif (self.check_type() == "float"):
+                    key_args[k] = float(v)
+                else:
+                    new_val = v.replace("_", " ")
+                    key_args[k] = new_val.strip('"\'')
+
+            new_inst = self.all_classes[cls_name](**key_args)
+            storage.new(new_inst)
+            new_inst.save()
+            print(new_inst)
+
+        except SyntaxError:
+            print("class name missing")
+        except NameError:
+            print("class do not exist")
+
+    @staticmethod
+    def check_type(val):
+        """
+        check the type of a variable
+
+        arg:
+        val (unknown): variable to check
+        """
+        try:
+            num = float(val)
+            if (num.is_integer()):
+                return ("int")
+            else:
+                return ("float")
+        except ValueError:
+            return ("none")
+
 
     def help_create(self):
         """ Help information for the create method """
