@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """ 
+    """
     State class
 
     Attr:
@@ -33,7 +33,7 @@ class State(BaseModel, Base):
             cities_list = []
 
             for city in all_cities.values():
-                if City.state_id = self.id:
+                if City.state_id == self.id:
                     cities_list.append(city)
 
             return (cities_list)
