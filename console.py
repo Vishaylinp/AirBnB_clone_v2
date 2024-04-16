@@ -2,6 +2,7 @@
 """ Console Module """
 import cmd
 import sys
+from datetime import datetime
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -10,13 +11,14 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from shlex import split
 
 
 class HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
     # determines prompt for interactive/non-interactive modes
-    prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
+    prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''.format(end='')
 
     classes = {
                'BaseModel': BaseModel, 'User': User, 'Place': Place,
@@ -33,7 +35,7 @@ class HBNBCommand(cmd.Cmd):
     def preloop(self):
         """Prints if isatty is false"""
         if not sys.__stdin__.isatty():
-            print('(hbnb)')
+            print('(hbnb) ', end='')
 
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
@@ -113,7 +115,7 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, line):
         """ Create an object of any class
 
         raise Exceptions:
@@ -135,18 +137,18 @@ class HBNBCommand(cmd.Cmd):
 
             for args in arg_list[1:]:
                 k, v = args.split("=")
-                if (self.check_type() == "int"):
+                if (self.check_type(v) == "int"):
                     key_args[k] = int(v)
-                elif (self.check_type() == "float"):
+                elif (self.check_type(v) == "float"):
                     key_args[k] = float(v)
                 else:
                     new_val = v.replace("_", " ")
                     key_args[k] = new_val.strip('"\'')
 
-            new_inst = self.all_classes[cls_name](**key_args)
+            new_inst = self.classes[cls_name](**key_args)
             storage.new(new_inst)
             new_inst.save()
-            print(new_inst)
+            print(new_inst.id)
 
         except SyntaxError:
             print("class name missing")
@@ -169,7 +171,6 @@ class HBNBCommand(cmd.Cmd):
                 return ("float")
         except ValueError:
             return ("none")
-
 
     def help_create(self):
         """ Help information for the create method """
@@ -317,7 +318,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -325,10 +326,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
@@ -364,6 +365,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
