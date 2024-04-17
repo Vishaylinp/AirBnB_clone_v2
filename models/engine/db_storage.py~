@@ -97,7 +97,7 @@ class DBStorage:
         """creates the current database session
         and all tables in the database
         """
-        Base.metadata.create_all(self.__engine)
+        Base.metadata.create_all(engine)
 
         session = sessionmaker(bind=self.__engine, expire_on_commit=False)
 
@@ -105,5 +105,4 @@ class DBStorage:
 
     def close(self):
         """close session"""
-        print("closing...")
         self.__session.remove()
