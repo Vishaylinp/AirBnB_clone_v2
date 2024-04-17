@@ -64,7 +64,8 @@ class DBStorage:
             for k, v in classes.items():
                 for inst in self.__session.query(v):
                     inst_dict.update({'{}.{}'.
-                                      format(type(inst).__name__, inst.id,): inst})
+                                      format(type(inst).__name__,
+                                             inst.id,): inst})
         return (inst_dict)
 
     def new(self, obj):
